@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grid Concentration Test</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0f172a;color:white;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
+.container{width:100%;max-width:1200px;text-align:center}
+.start-screen{display:block}
+.game-screen{display:none}
+h1{margin-bottom:20px}
+.status{display:flex;justify-content:center;gap:40px;margin-bottom:20px;font-size:22px;font-weight:bold}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.cell{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;cursor:pointer;font-weight:bold}
+.correct{background:#22c55e}
+.wrong{background:#ef4444}
+button{padding:14px 28px;border:none;border-radius:10px;background:#2563eb;color:white;font-size:18px;cursor:pointer}
+@media(max-width:768px){.grid{grid-template-columns:repeat(5,1fr)}.cell{font-size:14px;padding:10px}.status{flex-direction:column;gap:10px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div id="startScreen" class="start-screen">
+<h1>🧠 GRID CONCENTRATION TEST</h1>
+<p style="margin-bottom:20px"></p><button onclick="beginGame()">Mulai Game</button>
+</div>
+
+<div id="gameScreen" class="game-screen">
+<h1>🧠 GRID CONCENTRATION TEST</h1>
+<div class="status">
+<div>Target: <span id="target">00</span></div>
+<div>Waktu: <span id="timer">60</span> detik</div>
+</div>
+<div id="grid" class="grid"></div>
+<br>
+<button onclick="restartGame()">Main Ulang</button>
+</div>
+
+</div>
+
+<script>
+const START=00, END=99;
+let current=0, countdown=60, timer;
+
+function shuffle(arr){
+ for(let i=arr.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [arr[i],arr[j]]=[arr[j],arr[i]];
+ }
+ return arr;
+}
+
+function disableAll(){
+ document.querySelectorAll('.cell').forEach(c=>c.style.pointerEvents='none');
+}
+
+function beginGame(){
+ document.getElementById('startScreen').style.display='none';
+ document.getElementById('gameScreen').style.display='block';
+ startGame();
+}
+
+function restartGame(){
+
+    clearInterval(timer);
+
+    document.getElementById('gameScreen').style.display = 'none';
+    document.getElementById('startScreen').style.display = 'block';
+
+    document.getElementById('grid').innerHTML = '';
+
+}
+function startGame(){
+ clearInterval(timer);
+
+ current=START;
+ countdown=60;
+
+ document.getElementById('target').textContent='00';
+ document.getElementById('timer').textContent='60';
+
+ const grid=document.getElementById('grid');
+ grid.innerHTML='';
+
+ const numbers=[];
+ for(let i=START;i<=END;i++) numbers.push(i);
+ shuffle(numbers);
+
+ numbers.forEach(number=>{
+  const cell=document.createElement('div');
+  cell.className='cell';
+  cell.textContent=String(number).padStart(2,'0');
+
+  cell.onclick=()=>{
+   if(number===current){
+    cell.classList.add('correct');
+    cell.style.pointerEvents='none';
+    current++;
+
+    if(current<=END){
+      document.getElementById('target').textContent=String(current).padStart(2,'0');
+    }else{
+      clearInterval(timer);
+      alert('🎉 Selamat! Kamu menyelesaikan permainan.');
+      disableAll();
+    }
+   }else{
+    cell.classList.add('wrong');
+    setTimeout(()=>cell.classList.remove('wrong'),200);
+   }
+  };
+
+  grid.appendChild(cell);
+ });
+
+ timer=setInterval(()=>{
+  countdown--;
+  document.getElementById('timer').textContent=countdown;
+
+  if(countdown<=0){
+   clearInterval(timer);
+   disableAll();
+   alert('⏰ Waktu habis! Angka terakhir yang dicapai: ' + String(current-1).padStart(2,'0'));
+  }
+ },1000);
+}
+</script>
+</body>
+</html>
+  
+
+
